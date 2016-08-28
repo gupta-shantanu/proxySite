@@ -30,7 +30,7 @@ def viewurl(request,url):
             imag=base64.b64encode(BytesIO(img.read()).getvalue()).decode()
             i['src']="data:image/%s;base64,"%(i['src'][-3:])+imag
             if i.has_attr('srcset'):
-                i['srcset']=imag
+                del i['srcset']
 
 
     return HttpResponse(soup.html)
