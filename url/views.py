@@ -33,7 +33,7 @@ def viewurl(request,url):
                 del i['srcset']
 
 
-    return HttpResponse(soup.html)
+    return HttpResponse(str(soup))
 
 def getform(request):
         return render(request,'form.html')
