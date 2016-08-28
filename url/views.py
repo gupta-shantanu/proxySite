@@ -11,6 +11,9 @@ def viewurl(request,url):
     if url[-4:]==".ext":
         return HttpResponse(requests.get(url[:-4]).text)
     html=requests.get(url)
+    pos=url.find('?')
+    if pos>-1:
+        url=url[:pos]
     soup=bs(html.text,"html.parser")
     replacelinks(soup.find_all('form', attrs = {'action' : True}),url,'action')
     replacelinks(soup.find_all('script', attrs = {'src' : True}),url,'src')
@@ -24,8 +27,10 @@ def viewurl(request,url):
             makeabsolute(i,url,'src')
             img=req.urlopen(i['src'])
 
-
-            i['src']="data:image/%s;base64,"%(i['src'][-3:])+base64.b64encode(BytesIO(img.read()).getvalue()).decode()
+            imag=base64.b64encode(BytesIO(img.read()).getvalue()).decode()
+            i['src']="data:image/%s;base64,"%(i['src'][-3:])+imag
+            if i.has_attr('srcset'):
+                i['srcset']=imag
 
 
     return HttpResponse(soup.html)
