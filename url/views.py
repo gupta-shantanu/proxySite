@@ -25,10 +25,13 @@ def viewurl(request,url):
     for i in result:
 
             makeabsolute(i,url,'src')
-            img=req.urlopen(i['src'])
+            try:
+                img=req.urlopen(i['src'])
+                imag=base64.b64encode(BytesIO(img.read()).getvalue()).decode()
+                i['src']="data:image/%s;base64,"%(i['src'][-3:])+imag
+            except:
+                i['src']=""
 
-            imag=base64.b64encode(BytesIO(img.read()).getvalue()).decode()
-            i['src']="data:image/%s;base64,"%(i['src'][-3:])+imag
             if i.has_attr('srcset'):
                 del i['srcset']
 
@@ -39,7 +42,7 @@ def getform(request):
         return render(request,'form.html')
 
 def makeabsolute(i,url,tag):
-    if not i[tag].startswith("http"):
+    if not i[tag].startswith("http") and not i[tag].startswith("java"):
         if i[tag][0]=='/':
             i[tag]=url+i[tag]
         else:
