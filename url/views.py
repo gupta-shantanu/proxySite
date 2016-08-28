@@ -22,7 +22,7 @@ def viewurl(request,url):
     for i in result:
         try:
             makeabsolute(i,url)
-            if not i.endswith('png'):
+            if not i['href'].endswith('png'):
                 i['href']='/'+i['href']
             else:
                 i['href']='https://willnorris.com/api/imageproxy/'+i['href']
