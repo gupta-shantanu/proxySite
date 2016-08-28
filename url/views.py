@@ -9,6 +9,8 @@ import base64
 
 def viewurl(request,url):
     html=requests.get(url)
+    if not url.endswith('html') or not url.endswith('htm'):
+        return HttpResponse(html)
     soup=bs(html.text,"html.parser")
     soup.body="ads"
     result=soup.find_all('form')
