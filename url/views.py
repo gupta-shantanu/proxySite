@@ -23,7 +23,7 @@ def viewurl(request,url):
         try:
             makeabsolute(i,url)
             if not i.endswith('png'):
-                i['href']='./'+i['href']
+                i['href']='/'+i['href']
             else:
                 i['href']='https://willnorris.com/api/imageproxy/'+i['href']
         except:
@@ -41,7 +41,7 @@ def viewurl(request,url):
     for i in result:
         try:
             makeabsolute(i,url)
-            i['href']='./'+i['href']
+            i['href']='/'+i['href']
         except:
             pass
     return HttpResponse(soup.html)
