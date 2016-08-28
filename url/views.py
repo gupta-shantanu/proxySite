@@ -51,7 +51,7 @@ def replacelinks(result,url,param='href'):
             makeabsolute(i,url,param)
             if not i[param].endswith('png'):
                 i[param]='/'+i[param]
-                if i.has_attr('type') or i.has_attr('rel'):
+                if i.has_attr('type') or i.has_attr('rel') or i.has_attr('src'):
                     i[param]=i[param]+".ext"
             else:
                 i[param]='https://willnorris.com/api/imageproxy/'+i[param]
