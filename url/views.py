@@ -8,29 +8,17 @@ from io import BytesIO
 import base64
 
 def viewurl(request,url):
+    if url[-4:]==".ext":
+        return HttpResponse(requests.get(url[:-4]).text)
     html=requests.get(url)
-    if not url.endswith('html') or not url.endswith('htm'):
-        return HttpResponse(html)
     soup=bs(html.text,"html.parser")
-    soup.body="ads"
-    result=soup.find_all('form')
-    for i in result:
-        try:
-            makeabsolute(i,url,'action')
-        except:
-            pass
 
-    result=soup.find_all('link')
-    for i in result:
-        try:
-            makeabsolute(i,url)
-            if not i['href'].endswith('png'):
-                i['href']='/'+i['href']
-            else:
-                i['href']='https://willnorris.com/api/imageproxy/'+i['href']
-        except:
-            pass
-    result=soup.find_all('img')
+    replacelinks(soup.find_all('script', attrs = {'src' : True}),url,'src')
+
+    replacelinks(soup.find_all('link', attrs = {'href' : True}),url)
+    replacelinks(soup.find_all('a', attrs = {'href' : True}),url)
+
+    result=soup.find_all('img', attrs = {'src' : True})
     for i in result:
 
             makeabsolute(i,url,'src')
@@ -39,21 +27,28 @@ def viewurl(request,url):
 
             i['src']="data:image/%s;base64,"%(i['src'][-3:])+base64.b64encode(BytesIO(img.read()).getvalue()).decode()
 
-    result=soup.find_all('a')
-    for i in result:
-        try:
-            makeabsolute(i,url)
-            i['href']='/'+i['href']
-        except:
-            pass
+
     return HttpResponse(soup.html)
 
 def getform(request):
         return render(request,'form.html')
 
-def makeabsolute(i,url,tag='href'):
+def makeabsolute(i,url,tag):
     if not i[tag].startswith("http"):
         if i[tag][0]=='/':
             i[tag]=url+i[tag]
         else:
             i[tag]=url+'/'+i[tag]
+
+def replacelinks(result,url,param='href'):
+    for i in result:
+        try:
+            makeabsolute(i,url,param)
+            if not i[param].endswith('png'):
+                i[param]='/'+i[param]
+                if i.has_attr('type') or i.has_attr('rel'):
+                    i[param]=i[param]+".ext"
+            else:
+                i[param]='https://willnorris.com/api/imageproxy/'+i[param]
+        except:
+            pass
