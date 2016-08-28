@@ -12,7 +12,7 @@ def viewurl(request,url):
         return HttpResponse(requests.get(url[:-4]).text)
     html=requests.get(url)
     soup=bs(html.text,"html.parser")
-
+    replacelinks(soup.find_all('form', attrs = {'action' : True}),url,'action')
     replacelinks(soup.find_all('script', attrs = {'src' : True}),url,'src')
 
     replacelinks(soup.find_all('link', attrs = {'href' : True}),url)
