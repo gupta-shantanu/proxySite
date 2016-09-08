@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup as bs
 def viewurl(request,url):
     if not url.startswith("http"):
         url="http://"+url
-        
+
     content=req.urlopen(req.Request(url+"?"+urlencode(request.GET),headers={'Cookie': ("" if not 'cookie' in request.COOKIES else request.COOKIES['cookie'])}))
     url=urlparse(url).netloc
     html=content.read()
