@@ -4,5 +4,5 @@
 > It's active [here](http://lawproxy.herokuapp.com/http://mylocation.org/)
 
 ## To DO
-[] Cookies behaving odd (again!)
+- Cookies behaving odd (again!)
 
