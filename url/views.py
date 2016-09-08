@@ -2,17 +2,18 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from http import cookies,cookiejar
+from urllib.parse import urlparse, urlencode
 from urllib import request as req
 from bs4 import BeautifulSoup as bs
 
 
 @csrf_exempt
 def viewurl(request,url):
-
-
-
-
-    content=req.urlopen(req.Request(url,headers={'Cookie': ("" if not 'cookie' in request.COOKIES else request.COOKIES['cookie'])}))
+    if not url.startswith("http"):
+        url="http://"+url
+        
+    content=req.urlopen(req.Request(url+"?"+urlencode(request.GET),headers={'Cookie': ("" if not 'cookie' in request.COOKIES else request.COOKIES['cookie'])}))
+    url=urlparse(url).netloc
     html=content.read()
     cook=cookies.SimpleCookie()
     if not 'html' in content.getheader('Content-Type'):
@@ -30,9 +31,7 @@ def viewurl(request,url):
 
         return response
 
-    pos=url.find('/',9)
-    if pos>-1:
-        url=url[:pos]
+
     soup=bs(html,"html.parser")
     replacelinks(soup.find_all('form', attrs = {'action' : True}),url,'action')
     replacelinks(soup.find_all('script', attrs = {'src' : True}),url,'src')
@@ -41,9 +40,9 @@ def viewurl(request,url):
     replacelinks(soup.find_all('a', attrs = {'href' : True}),url)
     replacelinks(soup.find_all('img', attrs = {'src' : True}),url,'src')
 
-    response=HttpResponse(str(soup)+str(request.COOKIES))
+    response=HttpResponse(str(soup))
     if 'cookie' in request.COOKIES:
-        response.set_cookie( 'cookie', request.COOKIES['cookie']+str(content.getheader('Set-Cookie')))
+        response.set_cookie( 'cookie', str(content.getheader('Set-Cookie')))
     else:
         response.set_cookie( 'cookie', content.getheader('Set-Cookie'))
 
@@ -72,7 +71,7 @@ def replacelinks(result,url,param='href'):
 
             i[param]='/'+i[param]
             if param =='action':
-                new_tag = soup.new_tag("a", href="http://www.example.com")
+                new_tag = soup.new_tag("a", href="/"+url)
                 original_tag.append(new_tag)
 
 
